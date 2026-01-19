@@ -13,6 +13,7 @@ This documentation covers everything you need to know to build a Shopify subscri
 7. [Data Architecture](./07-data-architecture.md) - Database design, metaobjects, and syncing
 8. [Customer Portal](./08-customer-portal.md) - Building the subscription management portal
 9. [Next Steps](./09-next-steps.md) - Development roadmap and differentiation ideas
+10. [Test Cases](./10-test-cases.md) - Comprehensive test cases for QA and validation
 
 ## Quick Start
 
