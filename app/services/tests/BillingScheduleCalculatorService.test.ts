@@ -1,17 +1,17 @@
-import {afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import * as factories from '#/factories';
 import {DateTime} from 'luxon';
 import prisma from '~/db.server';
 import {BillingScheduleCalculatorService} from '../BillingScheduleCalculatorService';
 
-describe('BillingScheduleCalculatorService', () => {
-  beforeAll(async () => {
-    await prisma.billingSchedule.deleteMany();
-  });
+const TEST_SHOP_PREFIX = 'bsc-test';
 
+describe('BillingScheduleCalculatorService', () => {
   afterEach(async () => {
-    await prisma.billingSchedule.deleteMany();
+    await prisma.billingSchedule.deleteMany({
+      where: {shop: {startsWith: TEST_SHOP_PREFIX}},
+    });
   });
 
   describe('#timeLocal,#timeUtc', () => {
@@ -19,6 +19,7 @@ describe('BillingScheduleCalculatorService', () => {
       const date = DateTime.utc(2023, 7, 14, 1);
 
       const shop = await factories.billingSchedule.create({
+        shop: `${TEST_SHOP_PREFIX}-europe.myshopify.com`,
         hour: 10,
         timezone: 'Europe/London',
       });
@@ -33,6 +34,7 @@ describe('BillingScheduleCalculatorService', () => {
       const date = DateTime.utc(2023, 7, 14, 1);
 
       const shop = await factories.billingSchedule.create({
+        shop: `${TEST_SHOP_PREFIX}-nz.myshopify.com`,
         hour: 10,
         timezone: 'Pacific/Auckland',
       });
@@ -48,6 +50,7 @@ describe('BillingScheduleCalculatorService', () => {
       const date = DateTime.utc(2023, 7, 14, 15);
 
       const shop = await factories.billingSchedule.create({
+        shop: `${TEST_SHOP_PREFIX}-hawaii.myshopify.com`,
         hour: 10,
         timezone: 'Pacific/Honolulu',
       });
@@ -63,6 +66,7 @@ describe('BillingScheduleCalculatorService', () => {
       const date = DateTime.utc(2023, 7, 14, 1);
 
       const shop = await factories.billingSchedule.create({
+        shop: `${TEST_SHOP_PREFIX}-kathmandu.myshopify.com`,
         hour: 10,
         timezone: 'Asia/Kathmandu',
       });
@@ -81,6 +85,7 @@ describe('BillingScheduleCalculatorService', () => {
 
       // London timezone on 2023-07-14 is 1 hour ahead of UTC (DST time change)
       const shop = await factories.billingSchedule.create({
+        shop: `${TEST_SHOP_PREFIX}-billing-cadence.myshopify.com`,
         hour: 10,
         timezone: 'Europe/London',
       });
@@ -103,6 +108,7 @@ describe('BillingScheduleCalculatorService', () => {
       // Toronto timezone on 2023-03-12 is 5 hours behind UTC
       // Toronto timezone on 2023-03-13 is 4 hours behind UTC (DST time change)
       const shop = await factories.billingSchedule.create({
+        shop: `${TEST_SHOP_PREFIX}-invalid-dst.myshopify.com`,
         hour: 2,
         timezone: 'America/Toronto',
       });
@@ -124,6 +130,7 @@ describe('BillingScheduleCalculatorService', () => {
       // Toronto timezone on 2023-11-04 is 4 hours behind UTC (DST time change)
       // Toronto timezone on 2023-11-05 is 5 hours behind UTC
       const shop = await factories.billingSchedule.create({
+        shop: `${TEST_SHOP_PREFIX}-dubious-dst.myshopify.com`,
         hour: 1,
         timezone: 'America/Toronto',
       });
@@ -145,6 +152,7 @@ describe('BillingScheduleCalculatorService', () => {
       const date = DateTime.utc(2023, 7, 14, 9);
 
       const shop = await factories.billingSchedule.create({
+        shop: `${TEST_SHOP_PREFIX}-billable-true.myshopify.com`,
         hour: 10,
         timezone: 'Europe/London',
       });
@@ -157,6 +165,7 @@ describe('BillingScheduleCalculatorService', () => {
       const date = DateTime.utc(2023, 7, 14, 8);
 
       const shop = await factories.billingSchedule.create({
+        shop: `${TEST_SHOP_PREFIX}-billable-false.myshopify.com`,
         hour: 10,
         timezone: 'Europe/London',
       });
@@ -174,6 +183,7 @@ describe('BillingScheduleCalculatorService', () => {
       'returns true only once for billing at 10:00:00 in %s (%i:00:00 UTC)',
       async (timezone, utcHour) => {
         const shop = await factories.billingSchedule.create({
+          shop: `${TEST_SHOP_PREFIX}-billable-${timezone.replace('/', '-')}.myshopify.com`,
           hour: 10,
           timezone,
         });
